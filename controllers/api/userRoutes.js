@@ -1,7 +1,9 @@
 const router = require('express').Router();
 //Importaing User Model
-const { User } = require('../../models');
-
+const { User, Blog, Comment } = require('../../models');
+const session = require('express-session');
+const withAuth = require('../../utils/auth');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 // Post route to create a new logged in user
 router.post('/', async (req, res) => {
     try {
@@ -34,7 +36,7 @@ router.post('login', async (req, res) => {
             res.status(400).json({ message: 'Incorrect email or password, please try again!'});
             return;
         }
-// Saving the session and having user logged in if the coreet info is entered
+// Saving the session and having user logged in if the correct info is entered
         req.session.save(()=> {
             req.session.user_id = userData.id;
             req.session.logged_in = true;

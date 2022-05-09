@@ -66,6 +66,7 @@ router.get('/blog/:id', async (req,res) => {
                         'comment',
                         'blog_id',
                         'user_id',
+                        'created_at',
                     ],
                     include: {
                         model: User,
