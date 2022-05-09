@@ -34,7 +34,7 @@ router.get('/', async (req, res)=> {
             ],
         });
 
-        const blogs = blogData.map((project) => project.get({plain: true}));
+        const blogs = blogData.map((blog) => blog.get({plain: true}));
 // Render the homePage.handlebar to html
         res.render('homepage', {
             blogs,

@@ -4,6 +4,25 @@ const { User, Blog, Comment } = require('../../models');
 const session = require('express-session');
 const withAuth = require('../../utils/auth');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+// Get route to get all of the users
+router.get('/', async (req, res) => {
+    try {
+        const allUsers = await User.findAll({
+            attributes: {
+                exclude: [
+                    'password'
+                ],
+            },
+        });
+        
+        const userData = allUsers.map((user) => user.get({ plain:true}));
+        res.json(userData);
+    }catch (err) {
+        res.status(500).json(err);
+    }
+});
+
 // Post route to create a new logged in user
 router.post('/', async (req, res) => {
     try {
