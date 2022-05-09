@@ -23,6 +23,49 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get user by a specific id
+router.get('/:id', async (req, res) => {
+    try {
+        const userData = await User.findByPk(req.session.user_id, {
+            atrributes: { exclude: ['password'] },
+            include: [
+                {
+                    model: Blog,
+                    atrributes: [
+                        'id',
+                        'title',
+                        'description',
+                        'date_created',
+                    ],
+                },
+                {
+                    model: Comment,
+                    attributes: [
+                        'id',
+                        'comment',
+                        'blog_id',
+                        'user_id',
+                        'created_at',
+                    ],
+                    include: {
+                        model: Blog,
+                        atrributes: ['title']
+                    }
+                },
+            ],
+        });
+
+        const user = blogData.map((user) => userData.get({ plain: true }));
+        if (!user) {
+            res.status(404).json({ message: 'There are no users with this ID!'});
+            return;
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
 // Post route to create a new logged in user
 router.post('/', async (req, res) => {
     try {
