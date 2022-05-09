@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {User,Blog, Comment} = require('../../models');
+const {User, Blog, Comment} = require('../../models');
 const withAuth = require('../../utils/auth');
 
 // Get all blog posts
@@ -25,6 +25,7 @@ router.get('/', async (req, res)=> {
                         'comment',
                         'blog_id',
                         'user_id',
+                        'created_at',
                     ],
                     include: {
                         model: User,
@@ -35,8 +36,53 @@ router.get('/', async (req, res)=> {
         });
 
         const blogs = blogData.map((project) => project.get({plain: true}));
-// Render the homePage.handlebar to html
         res.json(blogData);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+// Get blog post by ID
+router.get('/:id', async (req, res)=> {
+    try {
+        const blogData = await Blog.findOne({
+            where: {
+                id: req.params.id
+            },
+            atrributes: [
+                'id',
+                'title',
+                'description',
+                'date_created',
+            ],
+            order: [['date_created', 'DESC']],
+            include: [
+                {
+                    model: User,
+                    attributes: ['name'],
+                },
+                {
+                    model: Comment,
+                    attributes: [
+                        'id',
+                        'comment',
+                        'blog_id',
+                        'user_id',
+                        'created_at'
+                    ],
+                    include: {
+                        model: User,
+                        atrributes: ['name']
+                    }
+                },
+            ],
+        });
+
+        const blogs = blogData.map((blog) => blog.get({plain: true}));
+        if (!blogs) {
+            res.status(404).json({ message: 'No blog post with this id!'});
+            return;
+        } res.json(blogs);
     } catch (err) {
         res.status(500).json(err);
     }
