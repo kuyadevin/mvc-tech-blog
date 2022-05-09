@@ -87,6 +87,7 @@ router.get('/:id', async (req, res)=> {
         res.status(500).json(err);
     }
 });
+
 //Create a new blog post but must be logged in
 router.post('/', withAuth, async (req, res)=> {
     try {
@@ -100,6 +101,23 @@ router.post('/', withAuth, async (req, res)=> {
     }
 });
 
+
+// Update blog post 
+router.put('/:id', withAuth, (req, res) => {
+    try {
+        const updateBlog = await Blog.update({
+            where: {
+                id: req.params.id
+            }
+        });
+        if (!updateBlog) {
+            res.status(404).json({ message: 'No blog post with that ID found!'});
+            return;
+        } res.json(updateBlog);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+})
 // Deleted a blog post by ID but it must be done by user that created it
 router.delete('/:id', withAuth, async (req, res)=> {
     try {
