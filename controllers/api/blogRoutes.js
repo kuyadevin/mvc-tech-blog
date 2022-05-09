@@ -1,7 +1,46 @@
 const router = require('express').Router();
-const {Blog} = require('../../models');
+const {User,Blog, Comment} = require('../../models');
 const withAuth = require('../../utils/auth');
 
+// Get all blog posts
+router.get('/', async (req, res)=> {
+    try {
+        const blogData = await Blog.findAll({
+            atrributes: [
+                'id',
+                'title',
+                'description',
+                'date_created',
+            ],
+            order: [['date_created', 'DESC']],
+            include: [
+                {
+                    model: User,
+                    attributes: ['name'],
+                },
+                {
+                    model: Comment,
+                    attributes: [
+                        'id',
+                        'comment',
+                        'blog_id',
+                        'user_id',
+                    ],
+                    include: {
+                        model: User,
+                        atrributes: ['name']
+                    }
+                },
+            ],
+        });
+
+        const blogs = blogData.map((project) => project.get({plain: true}));
+// Render the homePage.handlebar to html
+        res.json(blogData);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
 //Create a new blog post but must be logged in
 router.post('/', withAuth, async (req, res)=> {
     try {
