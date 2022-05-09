@@ -47,6 +47,12 @@ router.get('/', async (req, res)=> {
 router.get('/blog/:id', async (req,res) => {
     try {
         const blogData = await Blog.findByPk(req.params.id, {
+            atrributes: [
+                'id',
+                'title',
+                'description',
+                'date_created',
+            ],
             include: [
                 {
                     model: User,
@@ -54,7 +60,16 @@ router.get('/blog/:id', async (req,res) => {
                 },
                 {
                     model: Comment,
-                    attributes: ['comment']
+                    attributes: [
+                        'id',
+                        'comment',
+                        'blog_id',
+                        'user_id',
+                    ],
+                    include: {
+                        model: User,
+                        atrributes: ['name']
+                    }
                 },
             ],
         });
@@ -74,7 +89,15 @@ router.get('/dashboard', withAuth, async (req, res) => {
     try {
         const userData = await User.findByPk(req.session.user_id, {
             atrributes: { exclude: ['password'] },
-            include: [{ model: Blog}],
+            include: { 
+                model: Blog,
+                atrributes: [
+                    'id',
+                    'title',
+                    'description',
+                    'date_created',
+                ],
+            },
         });
 
         const user = userData.get({ plain: true });
@@ -87,3 +110,14 @@ router.get('/dashboard', withAuth, async (req, res) => {
         res.status(500).json(err);
     }
 });
+
+router.get('/login', (req, res) => {
+    if (req.session.logged_in) {
+        res.redirect('/dashboard');
+        return;
+    }
+
+    res.render('login');
+});
+
+module.exports = router;
