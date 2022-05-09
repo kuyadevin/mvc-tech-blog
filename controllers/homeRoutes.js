@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { Blog, User, Comment} = require('../models');
 const withAuth = require('../utils/auth');
+
 // Get request to get the homepage with any blogs that are already up
 router.get('/', async (req, res)=> {
     try {
@@ -35,7 +36,7 @@ router.get('/', async (req, res)=> {
         });
 
         const blogs = blogData.map((blog) => blog.get({plain: true}));
-        
+
 // Render the homePage.handlebar to html
         res.render('homepage', {
             blogs,
@@ -45,7 +46,7 @@ router.get('/', async (req, res)=> {
         res.status(500).json(err);
     }
 });
-// Get route to get specific blogs by ID 
+// Get route to get specific blogs by ID and render a single page
 router.get('/blog/:id', async (req,res) => {
     try {
         const blogData = await Blog.findByPk(req.params.id, {
@@ -88,39 +89,47 @@ router.get('/blog/:id', async (req,res) => {
     }
 });
 
-router.get('/dashboard', withAuth, async (req, res) => {
-    try {
-        const userData = await User.findByPk(req.session.user_id, {
-            atrributes: { exclude: ['password'] },
-            include: { 
-                model: Blog,
-                atrributes: [
-                    'id',
-                    'title',
-                    'description',
-                    'date_created',
-                ],
-            },
-        });
+// router.get('/dashboard', withAuth, async (req, res) => {
+//     try {
+//         const userData = await User.findByPk(req.session.user_id, {
+//             atrributes: { exclude: ['password'] },
+//             include: { 
+//                 model: Blog,
+//                 atrributes: [
+//                     'id',
+//                     'title',
+//                     'description',
+//                     'date_created',
+//                 ],
+//             },
+//         });
 
-        const user = userData.get({ plain: true });
+//         const user = userData.get({ plain: true });
 
-        res.render('dashboard', {
-            ...user,
-            logged_in: true
-        });
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+//         res.render('dashboard', {
+//             ...user,
+//             logged_in: true
+//         });
+//     } catch (err) {
+//         res.status(500).json(err);
+//     }
+// });
 
 router.get('/login', (req, res) => {
     if (req.session.logged_in) {
-        res.redirect('/dashboard');
+        res.redirect('/');
         return;
     }
 
     res.render('login');
+});
+
+router.get('/signup', (req, res) => {
+    if (req.session.loggedIn) {
+        res.redirect('/');
+        return;
+    }
+    res.render('signup');
 });
 
 module.exports = router;
