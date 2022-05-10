@@ -78,8 +78,8 @@ router.get('/blog/:id', async (req,res) => {
             ],
         });
 
-        const blog = blogData.get({ plain: true});
-        res.render('blog', {
+        const blog = blogData.map((blog) => blog.get({plain: true}));
+        res.render('oneBlog', {
             ...blog,
             logged_in: req.session.logged_in
         });
