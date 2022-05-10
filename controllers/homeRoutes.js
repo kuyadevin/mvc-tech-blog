@@ -1,6 +1,6 @@
 const router = require('express').Router();
+const sequelize = require('../config/connection');
 const { Blog, User, Comment} = require('../models');
-const withAuth = require('../utils/auth');
 
 // Get request to get the homepage with any blogs that are already up
 router.get('/', async (req, res)=> {
@@ -79,7 +79,6 @@ router.get('/blog/:id', async (req,res) => {
         });
 
         const blog = blogData.get({ plain: true});
-
         res.render('blog', {
             ...blog,
             logged_in: req.session.logged_in
